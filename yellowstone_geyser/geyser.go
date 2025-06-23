@@ -35,7 +35,9 @@ type streamManager struct {
 }
 
 type StreamClient struct {
-	Ctx        context.Context
+	Ctx       context.Context
+	CtxCancel context.CancelFunc
+
 	GrpcConn   *grpc.ClientConn
 	streamName string
 	geyserConn yellowstone_geyser_pb.GeyserClient
@@ -82,7 +84,6 @@ func (c *Client) Close() error {
 	for _, sc := range c.s.clients {
 		sc.Stop()
 	}
-	close(c.ErrCh)
 	return c.GrpcConn.Close()
 }
 
@@ -104,8 +105,11 @@ func (c *Client) AddStreamClient(ctx context.Context, streamName string, commitm
 		return err
 	}
 
+	ctx, cancel := context.WithCancel(ctx)
+
 	streamClient := StreamClient{
 		Ctx:        ctx,
+		CtxCancel:  cancel,
 		GrpcConn:   c.GrpcConn,
 		streamName: streamName,
 		geyser:     stream,
@@ -134,9 +138,7 @@ func (c *Client) AddStreamClient(ctx context.Context, streamName string, commitm
 }
 
 func (s *StreamClient) Stop() {
-	s.Ctx.Done()
-	close(s.Ch)
-	close(s.ErrCh)
+	s.CtxCancel()
 }
 
 // GetStreamClient returns a StreamClient for the given streamName from the client's map.
@@ -313,6 +315,9 @@ func (s *StreamClient) UnsubscribeAccountDataSlice() error {
 
 // listen starts listening for responses and errors.
 func (s *StreamClient) listen() {
+	defer close(s.Ch)
+	defer close(s.ErrCh)
+
 	for {
 		select {
 		case <-s.Ctx.Done():
