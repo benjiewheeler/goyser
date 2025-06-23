@@ -157,6 +157,11 @@ func (s *StreamClient) SetRequest(req *yellowstone_geyser_pb.SubscribeRequest) {
 	s.request = req
 }
 
+// GetRequest returns the current request.
+func (s *StreamClient) GetRequest() *yellowstone_geyser_pb.SubscribeRequest {
+	return s.request
+}
+
 // SetCommitmentLevel modifies the commitment level of the stream's request.
 func (s *StreamClient) SetCommitmentLevel(commitmentLevel yellowstone_geyser_pb.CommitmentLevel) {
 	s.mu.Lock()
