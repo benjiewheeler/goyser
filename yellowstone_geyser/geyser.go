@@ -213,7 +213,12 @@ func (s *StreamClient) GetAccounts(filterName string) []string {
 
 // AppendAccounts appends accounts to an existing subscription and sends the request.
 func (s *StreamClient) AppendAccounts(filterName string, accounts ...string) error {
+	s.mu.Lock()
+	if _, ok := s.request.Accounts[filterName]; !ok {
+		s.request.Accounts[filterName] = &yellowstone_geyser_pb.SubscribeRequestFilterAccounts{}
+	}
 	s.request.Accounts[filterName].Account = append(s.request.Accounts[filterName].Account, accounts...)
+	s.mu.Unlock()
 	return s.geyser.Send(s.request)
 }
 
