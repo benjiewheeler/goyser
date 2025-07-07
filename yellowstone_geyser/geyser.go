@@ -230,6 +230,10 @@ func (s *StreamClient) UnsubscribeAccounts(filterName string, accounts ...string
 		filter.Account = slices.DeleteFunc(filter.Account, func(a string) bool {
 			return slices.Contains(accounts, a)
 		})
+
+		if len(filter.Account) == 0 {
+			delete(s.request.Accounts, filterName)
+		}
 	}
 	return s.sendRequest()
 }
