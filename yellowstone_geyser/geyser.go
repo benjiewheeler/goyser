@@ -480,6 +480,9 @@ func ConvertTransaction(geyserTx *yellowstone_geyser_pb.SubscribeUpdateTransacti
 			tx.Meta.InnerInstructions[i].Instructions[x].Accounts = accounts
 			tx.Meta.InnerInstructions[i].Instructions[x].ProgramIDIndex = uint16(inst.ProgramIdIndex)
 			tx.Meta.InnerInstructions[i].Instructions[x].Data = inst.Data
+			if inst.StackHeight != nil {
+				tx.Meta.InnerInstructions[i].Instructions[x].StackHeight = uint16(*inst.StackHeight)
+			}
 			// if err = tx.Meta.InnerInstructions[i].Instructions[x].Data.UnmarshalJSON(inst.Data); err != nil {
 			// 	return nil, err
 			// }
