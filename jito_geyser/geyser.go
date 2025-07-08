@@ -45,7 +45,7 @@ type StreamClient struct {
 // New creates a new Client instance.
 func New(ctx context.Context, grpcDialURL string, md metadata.MD) (*Client, error) {
 	ch := make(chan error)
-	conn, err := pkg.CreateAndObserveGRPCConn(ctx, ch, grpcDialURL, md)
+	conn, err := pkg.CreateAndObserveGRPCConn(ctx, ch, grpcDialURL)
 	if err != nil {
 		return nil, err
 	}
